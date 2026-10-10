@@ -99,7 +99,7 @@ export function mountSolarSimulator() {
 
         ctx.clearRect(0, 0, 512, 512);
 
-        // Sapuan Cincin C, B, Celah Cassini, dan Cincin A
+      // Sapuan Cincin C, B, Celah Cassini, dan Cincin A
         for (let r = 90; r < 240; r++) {
           ctx.beginPath();
           ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -873,6 +873,7 @@ export function mountSolarSimulator() {
       badgeSeason.classList.toggle('hidden', newMode !== 'earth_revolution');
       badgeMoon.classList.toggle('hidden', newMode !== 'moon_revolution');
       planetBar.classList.toggle('hidden', newMode !== 'solar_system');
+      if (newMode === 'moon_revolution') drawRealisticMoonPhase(moonRevAngle);
 
       sunLight.visible = !['earth_revolution', 'solar_system'].includes(newMode);
       solarSunLight.visible = !sunLight.visible;
