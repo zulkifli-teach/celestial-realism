@@ -5,7 +5,7 @@ export function orbitPosition(a, e, meanAnomaly, inclination = 0) {
   for (let i = 0; i < 10; i++) E -= (E - e * Math.sin(E) - meanAnomaly) / (1 - e * Math.cos(E));
   const z = -a * Math.sqrt(1 - e * e) * Math.sin(E);
   const tilt = inclination * Math.PI / 180;
-  return { x: a * (Math.cos(E) - e), y: z * Math.sin(tilt), z: z * Math.cos(tilt) };
+  return { x: a * (Math.cos(E) - e), y: inclination === 0 ? 0 : z * Math.sin(tilt), z: z * Math.cos(tilt) };
 }
 export const ORBIT_ELEMENTS = [
   { eccentricity: .2056, inclination: 7.005, periodDays: 87.969, distanceKm: 57.9, axialTilt: .034 },

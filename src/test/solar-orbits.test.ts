@@ -4,6 +4,7 @@ import { orbitPosition, ORBIT_ELEMENTS } from "../lib/solar-orbits.js";
 describe("Orbit sesuai lintasan", () => {
   it("keeps Earth's orbit in the XZ plane with the Sun at a focus", () => {
     const earth = ORBIT_ELEMENTS[2];
+    if (!earth) throw new Error("Earth orbital elements missing");
     const a = 26;
     const e = earth.eccentricity;
     for (let i = 0; i < 100; i++) {

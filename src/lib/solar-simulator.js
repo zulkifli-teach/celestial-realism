@@ -318,7 +318,7 @@ export function mountSolarSimulator() {
     // Kemiringan Sumbu Bumi Konsisten ke Arah Ruang Angkasa (Polaris / Sumbu +Z)
     // Sumbu kemiringan TIDAK berputar mengikuti arah matahari, melainkan tetap stabil di ruang angkasa!
     const revEarthTilt = new THREE.Group();
-    revEarthTilt.rotation.x = THREE.MathUtils.degToRad(-23.44);
+    revEarthTilt.rotation.x = THREE.MathUtils.degToRad(23.44);
     revolvingEarthHolder.add(revEarthTilt);
 
     const revEarthMesh = new THREE.Mesh(
@@ -1054,7 +1054,7 @@ export function mountSolarSimulator() {
 
       infoDrawer.classList.remove('translate-x-[110%]');
 
-      listen(document.getElementById('btn-back-overview')?, 'click', () => {
+      listen(document.getElementById('btn-back-overview'), 'click', () => {
         appState.currentPlanetFocus = null;
         controls.target.set(0, 0, 0);
         camera.position.set(0, 75, 105);
@@ -1309,7 +1309,7 @@ export function mountSolarSimulator() {
           sunMainMesh.rotation.y += 0.0018 * speed;
 
           solarPlanets.forEach(p => {
-            p.angle += (365.256 / p.config.periodDays * 0.12) * speed;
+            p.angle += (365.256 / p.config.periodDays * 0.008) * speed;
             const pos = orbitPosition(p.config.distance, p.config.eccentricity, p.angle, p.config.inclination);
             p.pivot.position.set(pos.x, pos.y, pos.z);
             p.mesh.rotation.y += p.config.rotSpeed * speed;
