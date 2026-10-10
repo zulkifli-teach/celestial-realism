@@ -2,8 +2,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { textureUrls } from './solar-assets';
 import { orbitPosition, ORBIT_ELEMENTS } from './solar-orbits';
+import { geographicPosition, indonesiaDaylight } from './solar-daylight';
+import { mountControlIcons, replaceIconText, setSolarIcon } from './solar-icons';
 
 export function mountSolarSimulator() {
+  mountControlIcons();
   const listeners = [];
   function listen(target, event, handler) { if (!target) return; target.addEventListener(event, handler); listeners.push(() => target.removeEventListener(event, handler)); }
   const loader = new THREE.TextureLoader();
@@ -240,17 +243,12 @@ export function mountSolarSimulator() {
     earthTiltGroup.add(equatorRing);
     earthTiltGroup.add(axisGroup);
 
-    // 4. Pin Beacon Wilayah Indonesia (Khatulistiwa Bujur 115° BT)
+    // 4. Indonesia, aligned to the Blue Marble texture's Greenwich meridian.
     const indoBeaconGroup = new THREE.Group();
-    // Konversi koordinat ekuirektangular tekstur ke bola 3D
-    const indoLat = 0.5 * (Math.PI / 180); // Sekitar khatulistiwa
-    const indoLon = 118 * (Math.PI / 180); // Wilayah tengah Nusantara
     const pinDistance = earthRadius + 0.16;
-
-    const pinX = -pinDistance * Math.cos(indoLat) * Math.cos(indoLon);
-    const pinY = pinDistance * Math.sin(indoLat);
-    const pinZ = pinDistance * Math.cos(indoLat) * Math.sin(indoLon);
-    indoBeaconGroup.position.set(pinX, pinY, pinZ);
+    const pinPosition = geographicPosition(0.5, 118, pinDistance);
+    const { x: pinX, y: pinY, z: pinZ } = pinPosition;
+    indoBeaconGroup.position.copy(pinPosition);
 
     // Bentuk Pin Merah Putih Bercahaya
     const pinHead = new THREE.Mesh(
@@ -840,9 +838,9 @@ export function mountSolarSimulator() {
       const data = EDUCATIONAL_MODULES[modeKey];
       if (!data) return;
       panelTitle.textContent = data.title;
-      panelIcon.textContent = data.icon;
-      panelContent.innerHTML = data.content;
-      panelHint.innerHTML = `<strong>Aksi Sentuh PID:</strong> ${data.hint}`;
+      panelIcon.innerHTML = replaceIconText(data.icon);
+      panelContent.innerHTML = replaceIconText(data.content);
+      panelHint.innerHTML = replaceIconText(`<strong>Aksi Sentuh PID:</strong> ${data.hint}`);
     }
 
     function switchMode(newMode) {
@@ -997,7 +995,7 @@ export function mountSolarSimulator() {
         controls.update();
 
         panelTitle.textContent = "Matahari (Bintang Pusat)";
-        panelIcon.textContent = "☀️";
+        setSolarIcon(panelIcon, 'sun');
         panelContent.innerHTML = `
           <div class="space-y-3">
             <div class="p-3 bg-amber-900/40 border border-amber-500/40 rounded-xl">
@@ -1036,7 +1034,7 @@ export function mountSolarSimulator() {
 
       const conf = pObj.config;
       panelTitle.textContent = conf.name;
-      panelIcon.textContent = "🪐";
+      setSolarIcon(panelIcon, planetId);
       panelContent.innerHTML = `
         <div class="space-y-3">
           <div class="p-3 bg-blue-900/40 border border-blue-500/30 rounded-xl">
@@ -1066,6 +1064,7 @@ export function mountSolarSimulator() {
         </div>
       `;
 
+      panelContent.innerHTML = replaceIconText(panelContent.innerHTML);
       infoDrawer.classList.remove('translate-x-[110%]');
 
       listen(document.getElementById('btn-back-overview'), 'click', () => {
@@ -1137,11 +1136,11 @@ export function mountSolarSimulator() {
       if (appState.isPlaying) {
         btnPlayPause.classList.replace('from-amber-500', 'from-emerald-500');
         btnPlayPause.classList.replace('to-orange-400', 'to-teal-400');
-        playPauseIcon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>';
+        setSolarIcon(playPauseIcon, 'pause');
       } else {
         btnPlayPause.classList.replace('from-emerald-500', 'from-amber-500');
         btnPlayPause.classList.replace('to-teal-400', 'to-orange-400');
-        playPauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        setSolarIcon(playPauseIcon, 'play');
       }
     });
 
@@ -1220,9 +1219,26 @@ export function mountSolarSimulator() {
     let earthRevNorm = 0; // 0 sampai 1
     let moonRevAngle = 0;
 
-    const indoWorldPos = new THREE.Vector3();
-    const earthWorldPos = new THREE.Vector3();
-    const worldSunPos = new THREE.Vector3();
+    function updateIndonesiaBadge() {
+      const { phase, cosine } = indonesiaDaylight(earthMesh, indoBeaconGroup, sunLight);
+      badgeIndo.dataset.phase = phase;
+      badgeIndo.dataset.solarCosine = String(cosine);
+      if (phase === 'day') {
+        badgeIndoStatus.textContent = 'Sedang Siang Hari';
+        badgeIndoStatus.className = 'text-sm sm:text-base font-bold text-amber-300';
+        badgeIndoDetail.textContent = 'Wilayah Indonesia menghadap dan menerima cahaya Matahari';
+        setSolarIcon(badgeIndoIcon, 'sun');
+      } else if (phase === 'night') {
+        badgeIndoStatus.textContent = 'Sedang Malam Hari';
+        badgeIndoStatus.className = 'text-sm sm:text-base font-bold text-indigo-300';
+        badgeIndoDetail.textContent = 'Wilayah Indonesia membelakangi Matahari';
+        setSolarIcon(badgeIndoIcon, 'moon');
+      } else {
+        badgeIndoStatus.textContent = 'Batas Siang dan Malam';
+        badgeIndoDetail.textContent = 'Wilayah Indonesia berada di garis cakrawala Matahari';
+        setSolarIcon(badgeIndoIcon, 'sunrise');
+      }
+    }
 
     const clock = new THREE.Clock();
     let animationId = 0;
@@ -1238,31 +1254,6 @@ export function mountSolarSimulator() {
           earthMesh.rotation.y += 0.012 * speed;
           cloudMesh.rotation.y += 0.014 * speed; // Awan berhembus lebih cepat
 
-          // Deteksi Siang / Malam Indonesia Nyata
-          indoBeaconGroup.getWorldPosition(indoWorldPos);
-          earthMesh.getWorldPosition(earthWorldPos);
-          sunLight.getWorldPosition(worldSunPos);
-
-          const toIndo = indoWorldPos.clone().sub(earthWorldPos).normalize();
-          const toSun = worldSunPos.clone().sub(earthWorldPos).normalize();
-          const dot = toIndo.dot(toSun);
-
-          if (dot > 0.08) {
-            badgeIndoStatus.textContent = "Sedang Siang Hari ☀️";
-            badgeIndoStatus.className = "text-sm sm:text-base font-bold text-amber-300";
-            badgeIndoDetail.textContent = "Wilayah Indonesia menerima limpahan cahaya matahari langsung";
-            badgeIndoIcon.textContent = "☀️";
-          } else if (dot < -0.08) {
-            badgeIndoStatus.textContent = "Sedang Malam Hari 🌙";
-            badgeIndoStatus.className = "text-sm sm:text-base font-bold text-indigo-300";
-            badgeIndoDetail.textContent = "Kepulauan Indonesia membelakangi matahari";
-            badgeIndoIcon.textContent = "🌙";
-          } else {
-            badgeIndoStatus.textContent = "Zona Senja / Fajar 🌅";
-            badgeIndoStatus.className = "text-sm sm:text-base font-bold text-orange-300";
-            badgeIndoDetail.textContent = "Matahari terbit (fajar) atau terbenam (senja) di garis cakrawala";
-            badgeIndoIcon.textContent = "🌅";
-          }
         }
 
         // --- 2. ANIMASI MODE REVOLUSI BUMI & 4 MUSIM ---
@@ -1283,19 +1274,19 @@ export function mountSolarSimulator() {
           if (earthRevNorm >= 0.18 && earthRevNorm < 0.38) {
             seasonBadgeTitle.textContent = "Solstis Juni (21 Juni)";
             seasonBadgeDesc.textContent = "BBU: Musim Panas (Siang Terpanjang) | BBS: Musim Dingin";
-            seasonBadgeIcon.textContent = "☀️";
+            setSolarIcon(seasonBadgeIcon, 'sun');
           } else if (earthRevNorm >= 0.38 && earthRevNorm < 0.65) {
             seasonBadgeTitle.textContent = "Ekuinoks September (23 September)";
             seasonBadgeDesc.textContent = "BBU: Musim Gugur | BBS: Musim Semi (Siang = Malam 12 Jam)";
-            seasonBadgeIcon.textContent = "🍂";
+            setSolarIcon(seasonBadgeIcon, 'leaf');
           } else if (earthRevNorm >= 0.65 && earthRevNorm < 0.88) {
             seasonBadgeTitle.textContent = "Solstis Desember (22 Desember)";
             seasonBadgeDesc.textContent = "BBU: Musim Dingin (Malam Terpanjang) | BBS: Musim Panas";
-            seasonBadgeIcon.textContent = "❄️";
+            setSolarIcon(seasonBadgeIcon, 'snow');
           } else {
             seasonBadgeTitle.textContent = "Ekuinoks Maret (21 Maret)";
             seasonBadgeDesc.textContent = "BBU: Musim Semi | BBS: Musim Gugur (Siang = Malam 12 Jam)";
-            seasonBadgeIcon.textContent = "🌸";
+            setSolarIcon(seasonBadgeIcon, 'flower');
           }
         }
 
@@ -1343,6 +1334,7 @@ export function mountSolarSimulator() {
         }
       }
 
+      if (appState.currentMode === 'earth_rotation') updateIndonesiaBadge();
       controls.update();
       renderer.render(scene, camera);
     }
