@@ -1,0 +1,2 @@
+export function orbitPosition(a: number, e: number, meanAnomaly: number, inclination?: number): { x: number; y: number; z: number };
+export const ORBIT_ELEMENTS: { eccentricity: number; inclination: number; periodDays: number; distanceKm: number; axialTilt: number }[];
