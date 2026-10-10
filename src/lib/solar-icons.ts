@@ -14,8 +14,9 @@ export function replaceIconText(html: string) {
   return html;
 }
 export function setSolarIcon(element: HTMLElement | null, name: string) {
-  if (!element || element.dataset.icon === name) return;
-  element.dataset.icon = name;
+  if (!element) return;
+  if (element.dataset['icon'] === name && element.firstElementChild?.getAttribute('src') === assets[`../assets/icon-${name}.png`]) return;
+  element.dataset['icon'] = name;
   element.innerHTML = iconMarkup(name);
 }
 export function mountControlIcons() {
