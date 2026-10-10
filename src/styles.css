@@ -161,6 +161,10 @@
 .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
 .custom-scroll::-webkit-scrollbar-thumb { background: var(--space-line); border-radius: 5px; }
 .solar-lab button { cursor: pointer; }
+.solar-icon-3d { display: inline-block; vertical-align: middle; width: 1.6em; height: 1.6em; min-width: 1.6em; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 3px var(--space-shadow)); }
+.glass-button > .solar-icon-3d, #play-pause-icon .solar-icon-3d { width: 30px; height: 30px; }
+#badge-indo-icon .solar-icon-3d, #badge-season-icon .solar-icon-3d { width: 42px; height: 42px; }
+.planet-select-btn .solar-icon-3d { width: 25px; height: 25px; }
 #planet-bar { top: 96px; }
 #info-drawer { top: 150px; bottom: 110px; }
 @media (max-width: 700px) {
