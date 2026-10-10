@@ -160,15 +160,17 @@ export function mountSolarSimulator() {
     sunLight.position.set(40, 4, 0);
     scene.add(sunLight);
 
-    // Latar Langit Kosmik Bintang
-    const starSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(800, 32, 32),
-      new THREE.MeshBasicMaterial({
-        map: RealisticTextureLab.createDeepSpace(),
-        side: THREE.BackSide
-      })
-    );
-    scene.add(starSphere);
+    // Small sharp stars, rather than a magnified low-resolution sky map.
+    const starPositions = new Float32Array(2400 * 3);
+    for (let i = 0; i < 2400; i++) {
+      const y = Math.random() * 2 - 1;
+      const angle = Math.random() * Math.PI * 2;
+      const radial = Math.sqrt(1 - y * y);
+      starPositions.set([radial * Math.cos(angle) * 650, y * 650, radial * Math.sin(angle) * 650], i * 3);
+    }
+    const starGeometry = new THREE.BufferGeometry();
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xc8d4e3, size: .75, transparent: true, opacity: .65, sizeAttenuation: false })));
 
     /* =========================================================================
        MODE 1: ROTASI BUMI (KEMIRINGAN 23.5°, SIANG-MALAM & DETEKTOR INDONESIA)
@@ -635,7 +637,7 @@ export function mountSolarSimulator() {
         });
         const ringMesh = new THREE.Mesh(ringGeo, ringMat);
         ringMesh.rotation.x = Math.PI / 2;
-        pMesh.add(ringMesh);
+        tiltHolder.add(ringMesh);
       }
 
       solarPlanets.push({
@@ -893,8 +895,18 @@ export function mountSolarSimulator() {
         camera.position.set(0, 75, 105);
       }
 
+      const sceneRadius = { earth_rotation: 10, earth_revolution: 30, moon_rotation: 7, moon_revolution: 18, solar_system: 86 }[newMode];
+      fitCamera(sceneRadius);
       controls.update();
       updateEducationPanel(newMode);
+    }
+
+    function fitCamera(radius) {
+      const vertical = THREE.MathUtils.degToRad(camera.fov / 2);
+      const horizontal = Math.atan(Math.tan(vertical) * camera.aspect);
+      const distance = radius / Math.sin(Math.min(vertical, horizontal)) * 1.15;
+      const direction = camera.position.clone().sub(controls.target).normalize();
+      camera.position.copy(controls.target).addScaledVector(direction, distance);
     }
 
     // Melukis Fase Bulan 2D Presisi di Layar Canvas Sesuai Sudut Revolusi Nyata
@@ -1018,6 +1030,7 @@ export function mountSolarSimulator() {
         targetPos.y + pObj.config.radius * 2.2,
         targetPos.z + pObj.config.radius * 4.6
       );
+      fitCamera(pObj.config.radius * (pObj.config.hasRings ? 2.8 : 1.6));
       controls.update();
 
       const conf = pObj.config;
@@ -1058,6 +1071,7 @@ export function mountSolarSimulator() {
         appState.currentPlanetFocus = null;
         controls.target.set(0, 0, 0);
         camera.position.set(0, 75, 105);
+        fitCamera(86);
         controls.update();
         updateEducationPanel('solar_system');
       });
@@ -1318,6 +1332,7 @@ export function mountSolarSimulator() {
           // Kamera mengikuti planet jika sedang difokuskan
           if (appState.currentPlanetFocus) {
             const pMesh = appState.currentPlanetFocus.mesh;
+            pMesh.updateWorldMatrix(true, false);
             const targetPos = new THREE.Vector3();
             pMesh.getWorldPosition(targetPos);
             const shift = targetPos.clone().sub(controls.target);
