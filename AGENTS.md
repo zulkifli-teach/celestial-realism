@@ -12,3 +12,5 @@
 - Preserve the uploaded educational simulator's DOM controls and Three.js engine in a client-mounted module, so all five existing learning modes remain intact.
 - Compute orbit geometry and animated positions from one shared Kepler solver in the XZ plane, preventing path/planet mismatches.
 - Load verified public-domain celestial surface maps through checked-in Lovable asset pointers, never runtime third-party sources.
+- Calculate Indonesia daylight from the textured globe's refreshed world normal and the renderer's directional-light target, so paused and animated indicators agree with illumination.
+- Use the shared solar icon helper for static and dynamically injected simulator UI, so mode changes retain the same image-based icon set.

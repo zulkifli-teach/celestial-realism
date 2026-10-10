@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
 import solarUI from "./solar-ui.html?raw";
+import { replaceIconText } from '@/lib/solar-icons';
+
+const solarMarkup = replaceIconText(solarUI);
 
 export function SolarLab() {
   const container = useRef<HTMLDivElement>(null);
@@ -12,5 +15,5 @@ export function SolarLab() {
     });
     return () => { disposed = true; cleanup?.(); };
   }, []);
-  return <div ref={container} className="solar-lab" dangerouslySetInnerHTML={{ __html: solarUI }} />;
+  return <div ref={container} className="solar-lab" dangerouslySetInnerHTML={{ __html: solarMarkup }} />;
 }
