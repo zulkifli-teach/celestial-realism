@@ -1,0 +1,12 @@
+import earth from '@/assets/earth.asset.json';
+import moon from '@/assets/moon.asset.json';
+import venus from '@/assets/venus.asset.json';
+import mars from '@/assets/mars.asset.json';
+import jupiter from '@/assets/jupiter.asset.json';
+import saturn from '@/assets/saturn.asset.json';
+import neptune from '@/assets/neptune.asset.json';
+import clouds from '@/assets/clouds.asset.json';
+import mercury from '@/assets/mercury.jpg';
+import uranus from '@/assets/uranus.jpg';
+import sun from '@/assets/sun.jpg';
+export const textureUrls = { earth: earth.url, moon: moon.url, venus: venus.url, mars: mars.url, jupiter: jupiter.url, saturn: saturn.url, neptune: neptune.url, clouds: clouds.url, mercury, uranus, sun };

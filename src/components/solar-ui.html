@@ -1,0 +1,256 @@
+
+
+  <!-- 3D Canvas Layer -->
+  <div class="absolute inset-0 z-0">
+    <canvas id="webgl-canvas"></canvas>
+  </div>
+
+  <!-- Header Navigasi Atas -->
+  <header class="absolute top-3 left-3 right-3 z-30 pointer-events-none flex justify-between items-start gap-2">
+    <!-- Brand Banner IPAS SD -->
+    <div class="pointer-events-auto glass-panel px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-400 via-orange-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-orange-500/30 text-2xl flex-shrink-0 animate-halo">
+        🪐
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base sm:text-lg md:text-xl font-bold font-display tracking-wide text-white">Lab Maya IPAS</h1>
+          <span class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+            Fase C (Kelas 5-6 SD)
+          </span>
+        </div>
+        <p class="text-xs text-slate-300 font-medium">Eksplorasi Sistem Tata Surya</p>
+      </div>
+    </div>
+
+    <!-- Tombol Fitur Cepat (PID Touch Friendly) -->
+    <div class="pointer-events-auto flex items-center gap-2 flex-wrap justify-end">
+      <!-- Toggle Layer Tambahan (Awan, Garis, Cahaya Malam) -->
+      <button id="btn-toggle-tools" class="glass-button h-12 min-h-[48px] px-3.5 sm:px-4 rounded-2xl flex items-center gap-2 text-white font-medium shadow-lg" title="Pengaturan Lapisan Visual">
+        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+        </svg>
+        <span class="hidden md:inline text-xs sm:text-sm">Lapisan Sains</span>
+      </button>
+
+      <!-- Tombol Reset Kamera -->
+      <button id="btn-reset-cam" class="glass-button h-12 min-h-[48px] px-3.5 sm:px-4 rounded-2xl flex items-center gap-2 text-white font-medium shadow-lg" title="Kembalikan Sudut Pandang">
+        <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        <span class="hidden md:inline text-xs sm:text-sm">Reset Kamera</span>
+      </button>
+
+      <!-- Tombol Buka Materi Pelajaran -->
+      <button id="btn-toggle-info" class="glass-button h-12 min-h-[48px] px-3.5 sm:px-4 rounded-2xl flex items-center gap-2 text-white font-medium shadow-lg" title="Buka/Tutup Ringkasan IPAS">
+        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+        <span class="hidden md:inline text-xs sm:text-sm">Materi IPAS</span>
+      </button>
+
+      <!-- Tombol Mode Layar Penuh (Wajib untuk PID Kelas) -->
+      <button id="btn-fullscreen" class="glass-button h-12 min-h-[48px] px-3.5 sm:px-4 rounded-2xl flex items-center gap-2 text-white font-medium shadow-lg" title="Layar Penuh (Papan PID)">
+        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+        </svg>
+        <span class="hidden md:inline text-xs sm:text-sm">Layar Penuh</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Floating Live Info Badges -->
+  <div id="live-badges-container" class="absolute top-24 left-3 z-20 pointer-events-none flex flex-col gap-2.5">
+    <!-- Indikator Siang / Malam Indonesia Real-Time (Mode 1) -->
+    <div id="badge-indonesia" class="pointer-events-auto glass-panel px-4 py-3 rounded-2xl flex items-center gap-3 border-l-4 border-amber-400 shadow-2xl max-w-xs sm:max-w-sm">
+      <div id="badge-indo-icon" class="text-3xl filter drop-shadow">☀️</div>
+      <div>
+        <div class="text-[11px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+          <span>🇮🇩 Wilayah Indonesia</span>
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        </div>
+        <div id="badge-indo-status" class="text-sm sm:text-base font-bold text-white">Sedang Siang Hari</div>
+        <div id="badge-indo-detail" class="text-xs text-slate-300">Kepulauan Nusantara menghadap matahari</div>
+      </div>
+    </div>
+
+    <!-- Live Moon Phase Inspector (Mode 4) -->
+    <div id="badge-moon-phase" class="hidden pointer-events-auto glass-panel p-3.5 rounded-2xl flex items-center gap-3 border-l-4 border-sky-400 max-w-xs shadow-2xl">
+      <canvas id="moon-phase-canvas" width="56" height="56" class="rounded-full shadow-lg bg-slate-950 border-2 border-slate-700 flex-shrink-0"></canvas>
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-sky-300">Fase dari Pandangan Bumi</div>
+        <div id="badge-moon-phase-title" class="text-sm font-bold text-white">Bulan Purnama</div>
+        <div id="badge-moon-phase-desc" class="text-xs text-slate-300">100% Sisi Terang Terlihat</div>
+      </div>
+    </div>
+
+    <!-- Orbit Season Indicator (Mode 2) -->
+    <div id="badge-season" class="hidden pointer-events-auto glass-panel px-4 py-3 rounded-2xl flex items-center gap-3 border-l-4 border-emerald-400 max-w-xs sm:max-w-sm shadow-2xl">
+      <div id="badge-season-icon" class="text-2xl">🌿</div>
+      <div>
+        <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Posisi Revolusi & Musim</div>
+        <div id="badge-season-title" class="text-sm font-bold text-white">Ekuinoks Maret</div>
+        <div id="badge-season-desc" class="text-xs text-slate-300">BBU: Musim Semi | BBS: Musim Gugur</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popover Pengaturan Lapisan Sains -->
+  <div id="tools-popover" class="hidden absolute top-20 right-3 z-40 pointer-events-auto glass-panel p-4 rounded-2xl w-72 shadow-2xl space-y-3">
+    <div class="flex items-center justify-between pb-2 border-b border-white/10">
+      <h3 class="text-xs font-bold uppercase tracking-wider text-teal-300">Lapisan Visual 3D</h3>
+      <button id="btn-close-tools" class="text-slate-400 hover:text-white text-xs font-bold p-1">✕</button>
+    </div>
+    <div class="space-y-2 text-xs">
+      <label class="flex items-center justify-between cursor-pointer p-1.5 rounded-lg hover:bg-white/5">
+        <span class="text-slate-200">Awan Atmosfer Bumi</span>
+        <input type="checkbox" id="chk-clouds" checked class="w-4 h-4 accent-blue-600 rounded">
+      </label>
+      <label class="flex items-center justify-between cursor-pointer p-1.5 rounded-lg hover:bg-white/5">
+        <span class="text-slate-200">Garis Poros Rotasi & Ekuator</span>
+        <input type="checkbox" id="chk-axis" checked class="w-4 h-4 accent-blue-600 rounded">
+      </label>
+      <label class="flex items-center justify-between cursor-pointer p-1.5 rounded-lg hover:bg-white/5">
+        <span class="text-slate-200">Garis Lintasan Orbit</span>
+        <input type="checkbox" id="chk-orbits" checked class="w-4 h-4 accent-blue-600 rounded">
+      </label>
+      <label class="flex items-center justify-between cursor-pointer p-1.5 rounded-lg hover:bg-white/5">
+        <span class="text-slate-200">Corona & Flare Matahari</span>
+        <input type="checkbox" id="chk-corona" checked class="w-4 h-4 accent-blue-600 rounded">
+      </label>
+    </div>
+  </div>
+
+  <!-- Simulation Playback & Speed Controls (Kiri Bawah) -->
+  <div class="absolute bottom-24 sm:bottom-28 left-3 z-30 pointer-events-auto glass-panel p-2.5 rounded-2xl flex items-center gap-2.5 shadow-2xl">
+    <!-- Play/Pause Button -->
+    <button id="btn-play-pause" class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-emerald-500/30 active:scale-95 transition-transform" title="Jeda / Putar Animasi">
+      <svg id="play-pause-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+      </svg>
+    </button>
+
+    <!-- Speed Multiplier Buttons -->
+    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+      <span class="text-[10px] font-bold text-slate-400 px-1.5 uppercase hidden sm:inline">Laju:</span>
+      <button class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white" data-speed="0.25">0.25x</button>
+      <button class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white" data-speed="0.5">0.5x</button>
+      <button class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow" data-speed="1.0">1x</button>
+      <button class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white" data-speed="2.0">2x</button>
+      <button class="speed-btn px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white" data-speed="5.0">5x</button>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Menu Dock (Optimized for Touch Displays) -->
+  <nav class="absolute bottom-3 left-3 right-3 z-30 pointer-events-none flex justify-center">
+    <div class="pointer-events-auto glass-panel px-2.5 py-2 rounded-2xl flex items-center gap-1.5 sm:gap-2.5 overflow-x-auto max-w-full custom-scroll shadow-2xl">
+      
+      <!-- Tab 1: Rotasi Bumi -->
+      <button class="nav-tab active min-h-[50px] px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-2 text-xs sm:text-sm font-bold text-white transition-all whitespace-nowrap bg-blue-600 shadow" data-mode="earth_rotation">
+        <span class="text-xl">🌍</span>
+        <div class="text-left leading-tight">
+          <div>Rotasi Bumi</div>
+          <span class="text-[10px] opacity-80 font-normal hidden sm:inline">Siang & Malam (24 Jam)</span>
+        </div>
+      </button>
+
+      <!-- Tab 2: Revolusi Bumi -->
+      <button class="nav-tab min-h-[50px] px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap" data-mode="earth_revolution">
+        <span class="text-xl">☀️</span>
+        <div class="text-left leading-tight">
+          <div>Revolusi Bumi</div>
+          <span class="text-[10px] opacity-80 font-normal hidden sm:inline">Orbit & 4 Musim (1 Tahun)</span>
+        </div>
+      </button>
+
+      <!-- Tab 3: Rotasi Bulan -->
+      <button class="nav-tab min-h-[50px] px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap" data-mode="moon_rotation">
+        <span class="text-xl">🌕</span>
+        <div class="text-left leading-tight">
+          <div>Rotasi Bulan</div>
+          <span class="text-[10px] opacity-80 font-normal hidden sm:inline">Kawah & Karakteristik</span>
+        </div>
+      </button>
+
+      <!-- Tab 4: Revolusi Bulan & Fase -->
+      <button class="nav-tab min-h-[50px] px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap" data-mode="moon_revolution">
+        <span class="text-xl">🌓</span>
+        <div class="text-left leading-tight">
+          <div>Revolusi Bulan</div>
+          <span class="text-[10px] opacity-80 font-normal hidden sm:inline">Gerak Sinkron & 8 Fase</span>
+        </div>
+      </button>
+
+      <!-- Tab 5: Jelajah 8 Planet Tata Surya -->
+      <button class="nav-tab min-h-[50px] px-3.5 sm:px-4 py-2 rounded-xl flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300 hover:text-white hover:bg-white/10 transition-all whitespace-nowrap" data-mode="solar_system">
+        <span class="text-xl">🌌</span>
+        <div class="text-left leading-tight">
+          <div>Tata Surya</div>
+          <span class="text-[10px] opacity-80 font-normal hidden sm:inline">Jelajah 8 Planet</span>
+        </div>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- Educational Information Side Panel (Collapsible Drawer) -->
+  <aside id="info-drawer" class="absolute top-20 bottom-24 right-3 z-30 pointer-events-auto w-80 sm:w-96 glass-panel rounded-3xl p-5 flex flex-col justify-between transition-transform duration-300 translate-x-[110%] shadow-2xl">
+    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+      <div class="flex items-center gap-2.5">
+        <span id="panel-icon" class="text-2xl filter drop-shadow">🌍</span>
+        <div>
+          <h2 id="panel-title" class="text-base sm:text-lg font-bold font-display text-white">Rotasi Bumi</h2>
+          <span class="text-[10px] text-blue-300 font-semibold uppercase tracking-wider">Materi IPAS Fase C SD</span>
+        </div>
+      </div>
+      <button id="btn-close-drawer" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center font-bold">✕</button>
+    </div>
+
+    <!-- Scrollable Educational Body -->
+    <div id="panel-content" class="flex-1 overflow-y-auto my-3 pr-1 space-y-3.5 text-xs sm:text-sm text-slate-200 custom-scroll font-normal leading-relaxed">
+      <!-- Injected Dynamically Based on Active Mode -->
+    </div>
+
+    <!-- Interactive Exploration Hint for Teacher & Students -->
+    <div class="pt-3 border-t border-white/10 bg-black/30 -mx-5 -mb-5 p-4 rounded-b-3xl">
+      <div class="flex items-start gap-2.5 text-xs text-amber-200">
+        <span class="text-base leading-none">👆</span>
+        <span id="panel-interaction-hint">
+          <strong>Aksi Sentuh PID:</strong> 1 jari untuk memutar 360°, 2 jari (cubit/pinch) untuk zoom, dan 2 jari geser untuk memindahkan posisi.
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Planet Quick Selector (Hanya Muncul di Mode 5) -->
+  <div id="planet-bar" class="hidden absolute top-20 left-1/2 -translate-x-1/2 z-20 pointer-events-auto glass-panel px-3 py-2 rounded-2xl flex items-center gap-1.5 max-w-[92vw] overflow-x-auto custom-scroll shadow-2xl">
+    <span class="text-[10px] font-bold text-slate-400 pl-1 uppercase whitespace-nowrap">PILIH OBJEK:</span>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-400 bg-amber-500/20 hover:bg-amber-500/30 flex items-center gap-1.5 whitespace-nowrap" data-planet="sun">
+      ☀️ <span>Matahari</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="mercury">
+      ⚪ <span>Merkurius</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-amber-200 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="venus">
+      🟡 <span>Venus</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-blue-300 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="earth">
+      🌍 <span>Bumi</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-rose-300 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="mars">
+      🔴 <span>Mars</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-orange-300 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="jupiter">
+      🟤 <span>Yupiter</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-yellow-200 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="saturn">
+      🪐 <span>Saturnus</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-cyan-200 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="uranus">
+      🌀 <span>Uranus</span>
+    </button>
+    <button class="planet-select-btn px-2.5 py-1.5 rounded-xl text-xs font-bold text-blue-400 hover:bg-white/10 flex items-center gap-1.5 whitespace-nowrap" data-planet="neptune">
+      🔵 <span>Neptunus</span>
+    </button>
+  </div>
+

@@ -19,6 +19,8 @@
  */
 
 @theme inline {
+  --font-display: "Fredoka", sans-serif;
+  --font-sans: "Outfit", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -63,8 +65,14 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.13 0.027 265);
+  --foreground: oklch(0.98 0.002 250);
+  --space-panel: oklch(0.2 0.042 265 / 88%);
+  --space-line: oklch(0.98 0.002 250 / 16%);
+  --space-control: oklch(0.98 0.002 250 / 8%);
+  --space-hover: oklch(0.98 0.002 250 / 16%);
+  --space-action: oklch(0.57 0.22 258);
+  --space-shadow: oklch(0 0 0 / 50%);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -142,3 +150,31 @@
     color: var(--color-foreground);
   }
 }
+
+.solar-lab { position: fixed; inset: 0; overflow: hidden; font-family: var(--font-sans); background: var(--background); color: var(--foreground); -webkit-tap-highlight-color: transparent; }
+.solar-lab * { box-sizing: border-box; }
+#webgl-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+.glass-panel { background: var(--space-panel); backdrop-filter: blur(16px); border: 1px solid var(--space-line); box-shadow: 0 12px 32px var(--space-shadow); }
+.glass-button { background: var(--space-control); border: 1px solid var(--space-line); transition: background 150ms; }
+.glass-button:hover { background: var(--space-hover); }
+.glass-button.active { background: var(--space-action); }
+.custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: var(--space-line); border-radius: 5px; }
+.solar-lab button { cursor: pointer; }
+#planet-bar { top: 96px; }
+#info-drawer { top: 150px; bottom: 110px; }
+@media (max-width: 700px) {
+  .solar-lab header { flex-wrap: wrap; }
+  .solar-lab header > div:first-child { padding: 8px 12px; width: 100%; }
+  .solar-lab header > div:first-child > div:first-child { width: 34px; height: 34px; }
+  .solar-lab header > div:last-child { margin-left: auto; }
+  .solar-lab header button { height: 40px; min-height: 40px; }
+  #live-badges-container { top: 124px; max-width: calc(100% - 24px); }
+  #badge-indo-detail { display: none; }
+  #planet-bar { top: 125px; }
+  #info-drawer { top: 185px; width: min(350px, calc(100vw - 24px)); bottom: 180px; padding: 16px; }
+  #tools-popover { top: 125px; }
+  .solar-lab nav > div { gap: 2px; padding: 6px; }
+  .solar-lab .nav-tab { padding: 8px 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .solar-lab * { animation: none !important; transition: none !important; } }
