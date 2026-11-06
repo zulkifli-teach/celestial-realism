@@ -14,3 +14,4 @@
 - Load verified public-domain celestial surface maps through checked-in Lovable asset pointers, never runtime third-party sources.
 - Calculate Indonesia daylight from the textured globe's refreshed world normal and the renderer's directional-light target, so paused and animated indicators agree with illumination.
 - Use the shared solar icon helper for static and dynamically injected simulator UI, so mode changes retain the same image-based icon set.
+- Keep the simulator-owned DOM in a memoized scene with stable callbacks, so assessment updates never replace the live WebGL canvas or its controls.
