@@ -529,7 +529,7 @@ export function mountSolarSimulator() {
       },
       {
         id: 'jupiter',
-        name: 'Yupiter',
+        name: 'Jupiter',
         radius: 3.8,
         distance: 43,
         speed: 0.44,
@@ -806,7 +806,7 @@ export function mountSolarSimulator() {
               </h4>
               <ul class="space-y-1.5 text-slate-300 text-xs">
                 <li>• <strong>Planet Dalam (Terestrial/Batuan):</strong> Merkurius, Venus, Bumi, Mars (padat, berbatu, tanpa cincin, satelit sedikit).</li>
-                <li>• <strong>Planet Luar (Jovian/Raksasa Gas & Es):</strong> Yupiter, Saturnus, Uranus, Neptunus (berukuran raksasa, memiliki cincin dan banyak satelit).</li>
+                <li>• <strong>Planet Luar (Jovian/Raksasa Gas & Es):</strong> Jupiter, Saturnus, Uranus, Neptunus (berukuran raksasa, memiliki cincin dan banyak satelit).</li>
               </ul>
             </div>
 

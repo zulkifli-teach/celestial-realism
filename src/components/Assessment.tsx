@@ -21,8 +21,51 @@ function play(notes: number[], type: OscillatorType, step: number) {
     });
   } catch { /* audio unavailable */ }
 }
-const winSound = () => play([523, 659, 784, 1047], "triangle", 0.12);
-const loseSound = () => play([330, 247], "sawtooth", 0.22);
+// Voice-like "yeaaay" / "uh-oh": sawtooth through vowel formant filters, plus applause noise.
+function voice(ac: AudioContext, start: number, dur: number, f0: [number, number], formants: number[], vol: number) {
+  const o = ac.createOscillator();
+  o.type = "sawtooth";
+  o.frequency.setValueAtTime(f0[0], start);
+  o.frequency.exponentialRampToValueAtTime(f0[1], start + dur);
+  const vib = ac.createOscillator(); const vg = ac.createGain();
+  vib.frequency.value = 6; vg.gain.value = 8; vib.connect(vg).connect(o.frequency);
+  const out = ac.createGain();
+  out.gain.setValueAtTime(0.0001, start);
+  out.gain.exponentialRampToValueAtTime(vol, start + 0.05);
+  out.gain.setValueAtTime(vol, start + dur * 0.7);
+  out.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  formants.forEach((f) => {
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = f; bp.Q.value = 8;
+    o.connect(bp).connect(out);
+  });
+  out.connect(ac.destination);
+  o.start(start); vib.start(start); o.stop(start + dur); vib.stop(start + dur);
+}
+function applause(ac: AudioContext, start: number, dur: number) {
+  const buf = ac.createBuffer(1, ac.sampleRate * dur, ac.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (Math.random() < 0.08 ? 1 : 0.15);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const hp = ac.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 900;
+  const g = ac.createGain();
+  g.gain.setValueAtTime(0.0001, start);
+  g.gain.exponentialRampToValueAtTime(0.35, start + 0.15);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  src.connect(hp).connect(g).connect(ac.destination);
+  src.start(start);
+}
+function getCtx() { try { ctx ??= new AudioContext(); return ctx; } catch { return null; } }
+const winSound = () => {
+  const ac = getCtx(); if (!ac) return; const t = ac.currentTime;
+  [[300, 520], [380, 640], [450, 760]].forEach(([a, b], i) => voice(ac, t + i * 0.03, 0.9, [a!, b!], [700, 1800, 2600], 0.9));
+  applause(ac, t + 0.1, 1.8);
+  play([784, 1047, 1319], "triangle", 0.1);
+};
+const loseSound = () => {
+  const ac = getCtx(); if (!ac) return; const t = ac.currentTime;
+  voice(ac, t, 0.25, [330, 320], [600, 1000, 2400], 1.2);
+  voice(ac, t + 0.32, 0.45, [260, 200], [450, 900, 2400], 1.2);
+};
 
 const PRAISE = ["Hebat! Kamu luar biasa!", "Mantap! Pemahamanmu keren!", "Benar sekali! Terus semangat!"];
 
