@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { QUESTIONS, checkAnswer } from "@/lib/assessment";
+import yayAsset from "@/assets/yay.mp3.asset.json";
 
 let ctx: AudioContext | null = null;
 function play(notes: number[], type: OscillatorType, step: number) {
@@ -56,11 +57,13 @@ function applause(ac: AudioContext, start: number, dur: number) {
 }
 function getCtx() { try { ctx ??= new AudioContext(); return ctx; } catch { return null; } }
 const winSound = () => {
-  const ac = getCtx(); if (!ac) return; const t = ac.currentTime;
-  [[300, 520], [380, 640], [450, 760]].forEach(([a, b], i) => voice(ac, t + i * 0.03, 0.9, [a!, b!], [700, 1800, 2600], 0.9));
-  applause(ac, t + 0.1, 1.8);
-  play([784, 1047, 1319], "triangle", 0.1);
+  try {
+    const a = new Audio(yayAsset.url);
+    a.volume = 0.9;
+    void a.play().catch(() => {});
+  } catch { /* audio unavailable */ }
 };
+void voice; void applause;
 const loseSound = () => {
   const ac = getCtx(); if (!ac) return; const t = ac.currentTime;
   voice(ac, t, 0.25, [330, 320], [600, 1000, 2400], 1.2);
