@@ -32,7 +32,7 @@ export function Assessment({ onClose }: { onClose: () => void }) {
   const [result, setResult] = useState<null | "right" | "wrong">(null);
   const [firstTry, setFirstTry] = useState(0);
   const [done, setDone] = useState(false);
-  const q = QUESTIONS[idx];
+  const q = QUESTIONS[idx] ?? QUESTIONS[0]!;
 
   const choose = (i: number) => {
     if (result === "right") return;
